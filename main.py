@@ -12,7 +12,7 @@ def generate_kernel(n):
 
 def draw_plot(img, title):
     plt.figure(figsize=(
-        img.shape[1]*12 / 100, img.shape[0]*12 / 100))
+        img.shape[1] / 100, img.shape[0] / 100))
     plt.imshow(img)
     plt.title(title)
     plt.xticks([])
@@ -33,8 +33,31 @@ def get_channel(channel_index):
     elif channel_index == 2:
         return 'GREEN'
 
-def avgown(img, kernel):
-    print("hola")
+
+def avgown(img, kernel, kernel_size):
+    n = kernel_size
+    height, width, _ = img.shape
+    result = np.zeros((height, width, 3), dtype=np.uint8)
+    # refactorizar
+    print(f"alto={height} - ancho={width}")
+
+    for i in range(height):  # en el excel  i es alto = 20
+        for j in range(width):  # j es ancho = 18 (para el ejemplo de la imagen 20x18)
+            # print(f'i,j {i},{j}')
+            for c in range(3):  # por cada canal
+                # print(f'pixel colr in chanel={get_channel(c)}: [{img[i,j,c]}]')
+                # print(f'pixel: [{img[i,j]}]')
+                pixel_value = 0
+                for ki in range(n):  # para iterar kernel
+                    for kj in range(n):
+                        y = i - n // 2 + ki  # y = alto
+                        x = j - n // 2 + kj  # x = ancho (quizzá aquí este la diferencia)
+                        if 0 <= x < width and 0 <= y < height:
+                            # print(f'Inside image: {img[y,x, c]}')
+                            pixel_value += img[y, x, c] * kernel[ki, kj]
+                result[i, j, c] = int(pixel_value)
+
+    return result
 
 
 def main():
@@ -57,35 +80,15 @@ def main():
         print("shape original: ", img.shape)
         print("img original: ", img[1][0])
         result = cv.filter2D(img, -1, kernel)
-        #print("shape result : ", result.shape)
-        #print("img result: ", result[6][9])
+        # print("shape result : ", result.shape)
+        # print("img result: ", result[6][9])
 
 
     elif args.filter == 'avgown':
-        print("Implement code for own average filter function")
-        n=args.a
+        print("Own implementation for mean's filter")
         img = read_rgb_img(args.impath)
-        height, width, _ = img.shape
-        result = np.zeros((height, width, 3), dtype=np.uint8)
-        # refactorizar
-        print(f"alto={height} - ancho={width}")
-        for i in range(height): # en el excel  i es alto = 20
-            for j in range(width): # j es ancho = 18 (para el ejemplo de la imagen 20x18)
-                print(f'i,j {i},{j}')
-                for c in range(3):  # por cada canal
-                    print(f'pixel colr in chanel={get_channel(c)}: [{img[i,j,c]}]')
-                    print(f'pixel: [{img[i,j]}]')
-                    pixel_value = 0
-                    for ki in range(n): # para iterar kernel
-                        for kj in range(n):
-                            y = i - n // 2 + ki # y = alto
-                            x = j - n // 2 + kj # x = ancho (quizzá aquí este la diferencia)
-                            if 0 <= x < width and 0 <= y < height:
-                                print(f'Inside image: {img[y,x, c]}')
-                                pixel_value += img[y,x, c] * kernel[ki, kj]
-                    result[i, j, c] = int(pixel_value)
-
-        print(result)
+        result = avgown(img, kernel, args.a)
+        # print(result)
 
     elif args.filter == 'avgboth':
         #  TODO
@@ -94,7 +97,6 @@ def main():
     draw_plot(img, f'{args.filter} original ({args.a}x{args.a})')
     draw_plot(result, f'{args.filter} result ({args.a}x{args.a})')
     plt.show()
-
 
 
 if __name__ == '__main__':
