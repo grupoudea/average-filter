@@ -25,6 +25,10 @@ def read_rgb_img(imgpath):
     return img_rgb
 
 
+def avgown(img, kernel):
+    print("hola")
+
+
 def main():
     parser = argparse.ArgumentParser(description='Average filter')
 
@@ -40,10 +44,14 @@ def main():
           f'({args.a}x{args.a})\n'
           f'=================')
 
-
     if args.filter == 'avglib':
         img = read_rgb_img(args.impath)
+        print("shape original: ", img.shape)
+        print("img original: ", img[19][17])
         result = cv.filter2D(img, -1, kernel)
+        print("shape result : ", result.shape)
+        # print("img result: ", result)
+
 
     elif args.filter == 'avgown':
         print("Implement code for own average filter function")
@@ -51,8 +59,8 @@ def main():
         #  TODO
         print("TODO")
 
-    draw_plot(img, 'original')
-    draw_plot(result, 'result')
+    draw_plot(img, f'{args.filter} original ({args.a}x{args.a})')
+    draw_plot(result, f'{args.filter} result ({args.a}x{args.a})')
     plt.show()
 
 
